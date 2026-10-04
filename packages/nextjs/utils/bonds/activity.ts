@@ -43,6 +43,8 @@ export type PaymentRow = {
   receiptHash?: Hex;
   receiptTx?: Hex;
   disputeTx?: Hex;
+  /** True once the payment went to the agent's arbiter (rather than an instant guarantee clawback). */
+  arbitrated?: boolean;
   arbitrationDeadline?: number;
   refunded?: bigint;
   settledTx?: Hex;
@@ -121,6 +123,7 @@ export function buildPayments(events: BondsEvent[]): PaymentRow[] {
         const deadline = Number(event.args.arbitrationDeadline);
         if (deadline > 0) {
           row.state = "disputed";
+          row.arbitrated = true;
           row.arbitrationDeadline = deadline;
         }
         break;
@@ -137,6 +140,40 @@ export function buildPayments(events: BondsEvent[]): PaymentRow[] {
     }
   }
   return [...byId.values()].sort((a, b) => (a.id > b.id ? -1 : 1));
+}
+
+export type PaymentOutcome = {
+  label: string;
+  tone: "warning" | "info" | "success" | "error";
+  /** Link text for the transaction that settled the payment. */
+  settledLabel: string;
+};
+
+/**
+ * How a payment ended, in words. A clawback is a full refund from the bond; an arbiter can also split a payment or
+ * rule for the agent, which the contract records as a partial refund or a release after a dispute.
+ */
+export function paymentOutcome(row: PaymentRow): PaymentOutcome {
+  switch (row.state) {
+    case "open":
+      return { label: "In dispute window", tone: "warning", settledLabel: "" };
+    case "disputed":
+      return { label: "Awaiting arbiter", tone: "info", settledLabel: "" };
+    case "released":
+      return row.arbitrated
+        ? { label: "Arbiter ruled for the agent", tone: "success", settledLabel: "resolution tx" }
+        : { label: "Released", tone: "success", settledLabel: "release tx" };
+    case "refunded": {
+      const refunded = row.refunded ?? 0n;
+      if (refunded < row.amount) {
+        const pct = row.amount > 0n ? Number((refunded * 10_000n) / row.amount) / 100 : 0;
+        return { label: `Arbiter split (${pct}% refunded)`, tone: "warning", settledLabel: "resolution tx" };
+      }
+      return row.arbitrated
+        ? { label: "Refunded in full by arbitration", tone: "error", settledLabel: "resolution tx" }
+        : { label: "Clawed back", tone: "error", settledLabel: "clawback tx" };
+    }
+  }
 }
 
 type TopicMessage = { message: string; sequence_number: number };

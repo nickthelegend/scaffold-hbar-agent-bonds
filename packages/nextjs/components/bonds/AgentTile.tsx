@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { zeroAddress } from "viem";
 import { useScaffoldReadContract } from "~~/hooks/scaffold-hbar";
-import { formatDuration, formatHbar, formatUsd, shortHex } from "~~/utils/bonds/format";
+import { formatDuration, formatHbar, formatRecord, formatUsd, shortHex } from "~~/utils/bonds/format";
 
 /** One registered agent in the directory: coverage, terms and track record. */
 export const AgentTile = ({ agent }: { agent: string }) => {
@@ -26,7 +26,6 @@ export const AgentTile = ({ agent }: { agent: string }) => {
 
   if (!info) return <div className="h-40 rounded-box bg-base-100 animate-pulse" />;
   const guaranteed = info.arbiter === zeroAddress;
-  const clawbackRate = info.payments ? Math.round((info.clawbacks / info.payments) * 100) : 0;
 
   return (
     <Link
@@ -35,7 +34,7 @@ export const AgentTile = ({ agent }: { agent: string }) => {
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-bold text-lg m-0">{name || "Unnamed agent"}</p>
+          <p className="font-bold text-lg m-0">{name === undefined ? "…" : name || "Unnamed agent"}</p>
           <p className="font-mono text-xs text-base-content/60 m-0">{shortHex(agent, 6)}</p>
         </div>
         <span className={`badge badge-sm ${guaranteed ? "badge-success" : "badge-info"}`}>
@@ -54,9 +53,7 @@ export const AgentTile = ({ agent }: { agent: string }) => {
       <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-base-content/70">
         <span>Bond {formatHbar(info.bond, 2)}</span>
         <span>{formatDuration(info.disputeWindow)} dispute window</span>
-        <span>
-          {info.payments} paid · {info.clawbacks} clawed back ({clawbackRate}%)
-        </span>
+        <span>{formatRecord(info)}</span>
       </div>
     </Link>
   );

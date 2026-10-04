@@ -6,24 +6,27 @@ import type { Hex } from "viem";
 import { useAccount } from "wagmi";
 import { useBondsWrite, useNow } from "~~/hooks/bonds";
 import { useTargetNetwork } from "~~/hooks/scaffold-hbar";
-import type { PaymentRow, ReceiptRecord } from "~~/utils/bonds/activity";
+import { type PaymentOutcome, type PaymentRow, type ReceiptRecord, paymentOutcome } from "~~/utils/bonds/activity";
 import { entityIdFromAddress, formatDuration, formatHbar, formatUsd, shortHex } from "~~/utils/bonds/format";
 
-const STATE_STYLE: Record<PaymentRow["state"], { label: string; className: string }> = {
-  open: { label: "In dispute window", className: "badge-warning" },
-  disputed: { label: "Awaiting arbiter", className: "badge-info" },
-  released: { label: "Released", className: "badge-success" },
-  refunded: { label: "Clawed back", className: "badge-error" },
+const TONE_CLASS: Record<PaymentOutcome["tone"], string> = {
+  warning: "badge-warning",
+  info: "badge-info",
+  success: "badge-success",
+  error: "badge-error",
 };
 
 export const PaymentsList = ({
   payments,
   receipts,
+  receiptsLoading,
   arbiter,
   isLoading,
 }: {
   payments: PaymentRow[];
   receipts?: Map<Hex, ReceiptRecord>;
+  /** True while the agent's HCS topic is still being fetched. */
+  receiptsLoading: boolean;
   arbiter?: string;
   isLoading: boolean;
 }) => {
@@ -42,6 +45,7 @@ export const PaymentsList = ({
           key={payment.id.toString()}
           payment={payment}
           receipt={payment.receiptHash ? receipts?.get(payment.receiptHash) : undefined}
+          receiptsLoading={receiptsLoading}
           arbiter={arbiter}
         />
       ))}
@@ -52,10 +56,12 @@ export const PaymentsList = ({
 const PaymentItem = ({
   payment,
   receipt,
+  receiptsLoading,
   arbiter,
 }: {
   payment: PaymentRow;
   receipt?: ReceiptRecord;
+  receiptsLoading: boolean;
   arbiter?: string;
 }) => {
   const { address } = useAccount();
@@ -74,7 +80,9 @@ const PaymentItem = ({
   const canRelease = payment.state === "open" && windowLeft <= 0;
   const arbitrationExpired =
     payment.state === "disputed" && payment.arbitrationDeadline !== undefined && now >= payment.arbitrationDeadline;
-  const style = STATE_STYLE[payment.state];
+  const outcome = paymentOutcome(payment);
+  // A guarantee clawback disputes and refunds in one transaction; arbitrated disputes have their own.
+  const separateDisputeTx = payment.disputeTx && payment.disputeTx !== payment.settledTx;
 
   return (
     <li className="rounded-box border border-base-300 bg-base-100 p-4 space-y-3">
@@ -88,7 +96,7 @@ const PaymentItem = ({
           from <span className="font-mono">{shortHex(payment.client)}</span>
           {isClient && <span className="badge badge-ghost badge-xs ml-1">you</span>}
         </span>
-        <span className={`badge badge-sm ml-auto ${style.className}`}>{style.label}</span>
+        <span className={`badge badge-sm ml-auto ${TONE_CLASS[outcome.tone]}`}>{outcome.label}</span>
       </div>
 
       <div className="text-sm">
@@ -104,13 +112,23 @@ const PaymentItem = ({
           </p>
         ) : (
           <p className="m-0 text-base-content/60">
-            {payment.receiptHash ? "Receipt recorded on-chain; its HCS message isn't indexed yet." : "No receipt yet."}
+            {!payment.receiptHash
+              ? "No receipt yet."
+              : receiptsLoading
+                ? "Checking the receipt on HCS…"
+                : "Receipt recorded on-chain; its HCS message isn't indexed yet."}
           </p>
         )}
         {payment.state === "refunded" && payment.refunded !== undefined && (
           <p className="m-0 text-error font-medium">
-            {formatHbar(payment.refunded)} returned to the client from the agent&apos;s bond.
+            {formatHbar(payment.refunded)} returned to the client from the agent&apos;s bond
+            {payment.refunded < payment.amount
+              ? `; the arbiter let the agent keep ${formatHbar(payment.amount - payment.refunded)}.`
+              : "."}
           </p>
+        )}
+        {payment.state === "released" && payment.arbitrated && (
+          <p className="m-0 text-success font-medium">The arbiter ruled for the agent; nothing was refunded.</p>
         )}
       </div>
 
@@ -123,9 +141,14 @@ const PaymentItem = ({
             receipt tx
           </a>
         )}
+        {separateDisputeTx && (
+          <a className="link" href={`${explorer}/transaction/${payment.disputeTx}`} target="_blank" rel="noreferrer">
+            dispute tx
+          </a>
+        )}
         {payment.settledTx && (
           <a className="link" href={`${explorer}/transaction/${payment.settledTx}`} target="_blank" rel="noreferrer">
-            {payment.state === "refunded" ? "clawback tx" : "release tx"}
+            {outcome.settledLabel}
           </a>
         )}
         {payment.schedule && (

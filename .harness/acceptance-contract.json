@@ -17,7 +17,7 @@
       "route": "/",
       "severity": "critical",
       "statement": "The 'Bonded agents' directory lists registered agents with their available coverage and record.",
-      "howToVerify": "Scroll to 'Bonded agents'. At least one tile shows a name, 'Coverage available now' in ℏ, the dispute window and 'paid · clawed back' counts. Clicking it opens /agent/<address>.",
+      "howToVerify": "Scroll to 'Bonded agents'. At least one tile shows a name, 'Coverage available now' in ℏ, the dispute window and a 'paid · disputed · refunded' record. Clicking it opens /agent/<address>.",
       "walletRequired": false,
       "verifiableWithoutCredentials": true
     },

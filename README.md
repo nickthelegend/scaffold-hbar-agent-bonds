@@ -20,6 +20,8 @@ Every payment is priced by **Chainlink HBAR/USD**, and clients can cap the USD p
 
 **Live:** [scaffold-hbar-agent-bonds.vercel.app](https://scaffold-hbar-agent-bonds.vercel.app) · contract [`0.0.10853651`](https://hashscan.io/testnet/contract/0.0.10853651) on Hedera testnet
 
+**Demo video:** _coming soon_ <!-- paste the video URL here (GitHub user-attachments, YouTube or Loom, so it plays inline) -->
+
 ---
 
 ## Contents
@@ -133,7 +135,7 @@ Payments #1–#3 come from `yarn agent:setup` and `yarn agent:demo --wait` (#1 f
 | 3 | 15 ℏ ($1.52) to Research Agent [tx](https://hashscan.io/testnet/transaction/0xcecad2439dc5ef0c8f5ad8ba0001f5498c8067e0334cded51d78d5ebae85414f) | message #3 (the bogus delivery) · [tx](https://hashscan.io/testnet/transaction/0xfca607fdefb76bbdde191ccbf1c13735a4e071db16da8c74adf57eebc7f2e830) | **Clawed back in full**: the client disputed and got 15 ℏ from the agent's bond in the same transaction [tx](https://hashscan.io/testnet/transaction/0x1a0c1982a45f7638af6024e01fe1e63b50bb46ae4bb59f7d327139fa0787f8fc); its schedule [`0.0.10853720`](https://hashscan.io/testnet/schedule/0.0.10853720) was **deleted** |
 | 4 | 8 ℏ ($0.81) to Data Agent for "30 days of SaucerSwap volume" [tx](https://hashscan.io/testnet/transaction/0x5c32b7d26d1991db6d8d59ec58433eabde8b6fab338e7746e297306e5f12d112) | (none) | The client **disputed** ("only 12 of 30 days") [tx](https://hashscan.io/testnet/transaction/0x9455f13c96b75170c087dbae0647559d4a3029412eeeca5a73c3389c3245e1ec), deleting schedule [`0.0.10853859`](https://hashscan.io/testnet/schedule/0.0.10853859). The arbiter **split it 50/50**: 4 ℏ went back to the client from the agent's bond and the rest of the lock was released [tx](https://hashscan.io/testnet/transaction/0x2ec46d3060f9f78a63a036c956427ccced912501184d7de3afeefbe83c2af0a5) |
 
-Each receipt hash stored on-chain matches `keccak256` of the corresponding message on topic `0.0.10853654`, which is what the dashboard's "✓ verified on HCS" badge checks. The Research Agent's public record now reads *3 paid · 1 clawed back*.
+Each receipt hash stored on-chain matches `keccak256` of the corresponding message on topic `0.0.10853654`, which is what the dashboard's "✓ verified on HCS" badge checks. The Research Agent's public record now reads *3 paid · 1 disputed · 1 refunded*, and the Data Agent's payment list labels #4 *Arbiter split (50% refunded)* with links to both the dispute and the ruling.
 
 Reproduce it yourself with a funded testnet account: `OWNER_PRIVATE_KEY=0x… yarn agent:setup && yarn agent:demo --wait`.
 
@@ -237,11 +239,11 @@ const toolkit = new HederaLangchainToolkit({ client, configuration: { plugins: [
 
 `yarn next:dev`, built on the Scaffold-HBAR Next.js app:
 
-- **`/`**: how a bonded payment works, the live Chainlink price, and the **directory of bonded agents** with coverage available now (HBAR and USD), dispute window, guarantee vs. arbitrated, and *paid · clawed back* record.
+- **`/`**: how a bonded payment works, the live Chainlink price, and the **directory of bonded agents** with coverage available now (HBAR and USD), dispute window, guarantee vs. arbitrated, and *paid · disputed · refunded* record.
 - **`/agent/[address]`**:
   - bond, coverage available, locked, record, arbiter and receipt topic;
   - **Hire** (job description, amount with live USD quote, optional USD cap; warns when the bond can't cover it);
-  - every payment with its state and countdown, the agent's receipt with **✓ verified on HCS**, **Claw back** for the client, a **refund slider** for the arbiter, and **Release now** / **Refund (arbiter timed out)** fallbacks;
+  - every payment with its outcome (released, clawed back, arbiter split, ruled for the agent) and countdown, the agent's receipt with **✓ verified on HCS**, **Claw back** for the client, a **refund slider** for the arbiter, and **Release now** / **Refund (arbiter timed out)** fallbacks;
   - for the operator: add to bond, request / cancel / complete a withdrawal.
 - **`/register`**: register the connected wallet as an agent with name, bond, dispute window, optional arbiter and receipt topic.
 
@@ -323,6 +325,8 @@ Use `HBAR_USD_FEED=0x... yarn foundry:deploy --network hedera_mainnet` for mainn
 yarn harness:doctor     # checks the recipe and the host
 yarn harness:validate   # runs Tiers 0–2 against this project
 ```
+
+`harness:doctor` also checks Tier 3.5's prerequisites, so it exits non-zero until `HEDERA_OPERATOR_ID` and `HEDERA_OPERATOR_KEY` (a funded testnet account) are set in your shell. `harness:validate` doesn't need them.
 
 On a fresh `npm create scaffold-hbar` of this template (4 Oct 2026), `yarn harness:validate` reports **`passed=true`, 0 findings**:
 - static checks pass;

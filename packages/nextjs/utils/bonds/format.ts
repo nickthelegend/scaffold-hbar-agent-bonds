@@ -8,7 +8,7 @@ export const formatUsd = (micros: bigint | undefined, digits = 2) =>
         style: "currency",
         currency: "USD",
         minimumFractionDigits: digits,
-        maximumFractionDigits: Math.max(digits, 4),
+        maximumFractionDigits: digits,
       });
 
 /** Vault amounts are tinybars (8 decimals). */
@@ -31,3 +31,10 @@ export const shortHex = (value: string, chars = 4) => `${value.slice(0, 2 + char
 
 /** Hedera entities created by system contracts (e.g. schedules) have long-zero EVM addresses: 0x000…<num>. */
 export const entityIdFromAddress = (address: string) => `0.0.${BigInt(address)}`;
+
+/**
+ * An agent's on-chain track record. The contract counts every refund (a full clawback or an arbiter's partial split)
+ * as one `clawbacks`, so it reads as "refunded", not "clawed back".
+ */
+export const formatRecord = (info: { payments: number; disputes: number; clawbacks: number }) =>
+  `${info.payments} paid · ${info.disputes} disputed · ${info.clawbacks} refunded`;

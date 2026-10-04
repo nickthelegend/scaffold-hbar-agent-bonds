@@ -17,7 +17,7 @@ export const HirePanel = ({ agent, freeBond }: { agent: string; freeBond?: bigin
 
   const valid = /^\d+(\.\d{1,8})?$/.test(amount) && Number(amount) > 0;
   const tinybars = valid ? parseUnits(amount, 8) : 0n;
-  const { data: quote } = useScaffoldReadContract({
+  const { data: quote, isLoading: quoteLoading } = useScaffoldReadContract({
     contractName: "AgentBonds",
     functionName: "quoteUsd",
     args: [tinybars],
@@ -61,7 +61,11 @@ export const HirePanel = ({ agent, freeBond }: { agent: string; freeBond?: bigin
             <span className="join-item btn btn-sm btn-disabled no-animation">ℏ</span>
           </div>
           <span className="text-[11px] text-base-content/60 mt-1">
-            {quote?.[0] ? `≈ ${formatUsd(quote[1])} at the Chainlink price` : "No fresh Chainlink price"}
+            {quote?.[0]
+              ? `≈ ${formatUsd(quote[1])} at the Chainlink price`
+              : quoteLoading
+                ? "Pricing with Chainlink…"
+                : "No fresh Chainlink price"}
           </span>
         </label>
         <label className="form-control">

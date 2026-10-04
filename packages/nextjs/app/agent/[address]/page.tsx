@@ -10,7 +10,7 @@ import { PaymentsList } from "~~/components/bonds/PaymentsList";
 import { HederaAddress } from "~~/components/scaffold-hbar";
 import { usePayments, useReceipts } from "~~/hooks/bonds";
 import { useScaffoldReadContract, useTargetNetwork } from "~~/hooks/scaffold-hbar";
-import { formatDuration, formatHbar, formatUsd } from "~~/utils/bonds/format";
+import { formatDuration, formatHbar, formatRecord, formatUsd } from "~~/utils/bonds/format";
 
 export default function AgentPage({ params }: { params: Promise<{ address: string }> }) {
   const { address } = use(params);
@@ -53,7 +53,7 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
     args: [info?.bond ?? 0n],
   });
   const { payments, isLoading: paymentsLoading, error } = usePayments(agent);
-  const { receipts, topicId } = useReceipts(info?.receiptTopic);
+  const { receipts, topicId, isLoading: receiptsLoading } = useReceipts(info?.receiptTopic);
 
   if (isLoading || (!info && !readError))
     return (
@@ -87,7 +87,7 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
 
   const isOperator = connected?.toLowerCase() === agent.toLowerCase();
   const guaranteed = info.arbiter === zeroAddress;
-  const clawedBack = payments.filter(p => p.state === "refunded").reduce((sum, p) => sum + (p.refunded ?? 0n), 0n);
+  const refundedTotal = payments.filter(p => p.state === "refunded").reduce((sum, p) => sum + (p.refunded ?? 0n), 0n);
 
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -95,13 +95,25 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-wider text-base-content/60 m-0">Bonded agent</p>
-            <h1 className="text-3xl font-bold m-0">{name || "Unnamed agent"}</h1>
+            <h1 className="text-3xl font-bold m-0">
+              {name === undefined ? (
+                <span className="inline-block h-8 w-56 rounded bg-base-200 animate-pulse align-middle" />
+              ) : (
+                name || "Unnamed agent"
+              )}
+            </h1>
             <HederaAddress address={agent} chain={targetNetwork} />
             {isOperator && <span className="badge badge-primary badge-sm">you operate this agent</span>}
           </div>
           <div className="text-right space-y-1">
             <p className="text-xs uppercase tracking-wider text-base-content/60 m-0">Coverage available</p>
-            <p className="text-3xl font-bold tabular-nums m-0">{formatHbar(free, 2)}</p>
+            <p className="text-3xl font-bold tabular-nums m-0">
+              {free === undefined ? (
+                <span className="inline-block h-8 w-24 rounded bg-base-200 animate-pulse align-middle" />
+              ) : (
+                formatHbar(free, 2)
+              )}
+            </p>
             <p className="text-sm text-base-content/60 m-0 tabular-nums">
               of a {formatHbar(info.bond, 2)} bond{bondQuote?.[0] ? ` (≈ ${formatUsd(bondQuote[1])})` : ""}
             </p>
@@ -111,7 +123,7 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
           <Stat label="Dispute window" value={formatDuration(info.disputeWindow)} />
           <Stat label="Disputes go to" value={guaranteed ? "Instant refund (guarantee)" : "Arbiter"} />
           <Stat label="Locked by open payments" value={formatHbar(info.locked, 2)} />
-          <Stat label="Record" value={`${info.payments} paid · ${info.clawbacks} clawed back`} />
+          <Stat label="Record" value={formatRecord(info)} />
         </div>
         <div className="flex flex-wrap gap-4 text-sm">
           {!guaranteed && (
@@ -126,7 +138,9 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
           ) : (
             <span className="text-base-content/60">No receipt topic</span>
           )}
-          {clawedBack > 0n && <span className="text-error">{formatHbar(clawedBack, 2)} clawed back so far</span>}
+          {refundedTotal > 0n && (
+            <span className="text-error">{formatHbar(refundedTotal, 2)} refunded to clients so far</span>
+          )}
         </div>
       </section>
 
@@ -158,7 +172,13 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
       <section className="space-y-4">
         <h2 className="text-xl font-bold m-0">Payments</h2>
         {error && <div className="alert alert-warning text-sm">Mirror node unavailable: {String(error)}</div>}
-        <PaymentsList payments={payments} receipts={receipts} arbiter={info.arbiter} isLoading={paymentsLoading} />
+        <PaymentsList
+          payments={payments}
+          receipts={receipts}
+          receiptsLoading={receiptsLoading}
+          arbiter={info.arbiter}
+          isLoading={paymentsLoading}
+        />
       </section>
     </div>
   );

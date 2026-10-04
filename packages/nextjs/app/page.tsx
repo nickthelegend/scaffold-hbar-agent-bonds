@@ -29,7 +29,11 @@ const STEPS = [
 const Home: NextPage = () => {
   const { data: contract, isLoading } = useDeployedContractInfo({ contractName: "AgentBonds" });
   const deployed = Boolean(contract && (contract.address as string) !== zeroAddress);
-  const { data: agents } = useScaffoldReadContract({ contractName: "AgentBonds", functionName: "agentList" });
+  const {
+    data: agents,
+    isError: agentsError,
+    refetch: refetchAgents,
+  } = useScaffoldReadContract({ contractName: "AgentBonds", functionName: "agentList" });
   const { data: feed } = useScaffoldReadContract({ contractName: "AgentBonds", functionName: "hbarUsdFeed" });
   const { data: maxPriceAge } = useScaffoldReadContract({ contractName: "AgentBonds", functionName: "maxPriceAge" });
 
@@ -87,7 +91,18 @@ const Home: NextPage = () => {
               AgentBonds isn&apos;t deployed on this network yet. Run{" "}
               <code>yarn foundry:deploy --network hedera_testnet</code>.
             </div>
-          ) : agents && agents.length > 0 ? (
+          ) : agents === undefined ? (
+            agentsError ? (
+              <div className="alert alert-error text-sm">
+                Couldn&apos;t load the agent directory from the RPC.
+                <button className="btn btn-sm" onClick={() => refetchAgents()}>
+                  Try again
+                </button>
+              </div>
+            ) : (
+              <div className="h-40 rounded-box bg-base-100 animate-pulse" aria-label="Loading agents" />
+            )
+          ) : agents.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {[...agents].reverse().map(agent => (
                 <AgentTile key={agent} agent={agent} />

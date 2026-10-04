@@ -2,7 +2,7 @@ import { agentBondsAbi } from "@sh/agent/abi";
 import { encodeReceipt, hashMessage } from "@sh/agent/messages";
 import { type Hex, encodeAbiParameters, encodeEventTopics, getAbiItem } from "viem";
 import { describe, expect, it } from "vitest";
-import { type MirrorLog, buildPayments, decodeBondsLogs, indexReceipts } from "~~/utils/bonds/activity";
+import { type MirrorLog, buildPayments, decodeBondsLogs, indexReceipts, paymentOutcome } from "~~/utils/bonds/activity";
 import { entityIdFromAddress, formatDuration, formatHbar, formatUsd } from "~~/utils/bonds/format";
 
 const BONDS = "0x000000000000000000000000000000000000b0d5";
@@ -74,6 +74,32 @@ describe("buildPayments", () => {
     expect(payments.find(p => p.id === 2n)?.refunded).toBe(1_500_000_000n);
     expect(payments.find(p => p.id === 3n)?.arbitrationDeadline).toBe(999);
     expect(payments.find(p => p.id === 4n)?.schedule?.toLowerCase()).toBe(SCHEDULE);
+  });
+
+  it("tells clawbacks, arbiter splits and rulings for the agent apart", () => {
+    const amount = 800_000_000n;
+    const payments = buildPayments(
+      decodeBondsLogs([
+        ...paid(1n, 100, amount),
+        log("Disputed", { id: 1n, reasonHash: JOB, arbitrationDeadline: 0n }, 110, "bb", 0),
+        log("ClawedBack", { id: 1n, client: CLIENT, refund: amount, remainingBond: 0n }, 110, "bb", 1),
+        ...paid(2n, 200, amount),
+        log("Disputed", { id: 2n, reasonHash: JOB, arbitrationDeadline: 999n }, 210, "cc"),
+        log("ClawedBack", { id: 2n, client: CLIENT, refund: amount / 2n, remainingBond: 0n }, 220, "dd"),
+        ...paid(3n, 300, amount),
+        log("Disputed", { id: 3n, reasonHash: JOB, arbitrationDeadline: 999n }, 310, "ee"),
+        log("Released", { id: 3n }, 320, "ff"),
+        ...paid(4n, 400, amount),
+        log("Released", { id: 4n }, 580, "12"),
+      ]),
+    );
+    const outcome = (id: bigint) => paymentOutcome(payments.find(p => p.id === id)!);
+
+    expect(outcome(1n)).toMatchObject({ label: "Clawed back", settledLabel: "clawback tx" });
+    expect(outcome(2n)).toMatchObject({ label: "Arbiter split (50% refunded)", settledLabel: "resolution tx" });
+    expect(payments.find(p => p.id === 2n)?.disputeTx).toBe(`0x${"cc".repeat(32)}`);
+    expect(outcome(3n)).toMatchObject({ label: "Arbiter ruled for the agent", settledLabel: "resolution tx" });
+    expect(outcome(4n)).toMatchObject({ label: "Released", settledLabel: "release tx" });
   });
 
   it("ignores logs that are not AgentBonds events", () => {

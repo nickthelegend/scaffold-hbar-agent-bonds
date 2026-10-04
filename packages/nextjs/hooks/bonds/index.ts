@@ -77,7 +77,7 @@ export function useReceipts(receiptTopic: bigint | undefined) {
     enabled: Boolean(topicId),
     refetchInterval: POLL_MS,
   });
-  return { receipts: query.data, topicId };
+  return { receipts: query.data, topicId, isLoading: query.isLoading };
 }
 
 /**
