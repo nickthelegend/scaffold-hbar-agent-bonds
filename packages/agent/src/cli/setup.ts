@@ -21,6 +21,9 @@ import { NETWORKS, hashscanTopic, hederaChain } from "../network";
 import { asHex, bondsAddress, networkFromEnv, requireEnv } from "../runtime";
 import { hbarToWeibars } from "../units";
 
+const OWNER_KEY_HINT =
+  "Pass the ECDSA key of a funded testnet account inline: OWNER_PRIVATE_KEY=0x… yarn agent:setup (free testnet HBAR: https://portal.hedera.com/faucet). Never commit it.";
+
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const network = networkFromEnv();
 const chain = hederaChain(network, process.env.HEDERA_RPC_URL || undefined);
@@ -33,7 +36,7 @@ async function confirm(label: string, hash: Hex) {
   console.log(`  ✓ ${label}  ${NETWORKS[network].hashscan}/transaction/${hash}`);
 }
 
-const ownerKey = asHex(requireEnv("OWNER_PRIVATE_KEY"));
+const ownerKey = asHex(requireEnv("OWNER_PRIVATE_KEY", OWNER_KEY_HINT));
 const owner = createWalletClient({ chain, transport: http(), account: privateKeyToAccount(ownerKey) });
 const bonds = bondsAddress(network);
 console.log(`Funding account ${owner.account.address} on ${network}; AgentBonds ${bonds}`);

@@ -1,5 +1,7 @@
 # Agent Bonds
 
+[![CI](https://github.com/nickthelegend/scaffold-hbar-agent-bonds/actions/workflows/ci.yaml/badge.svg)](https://github.com/nickthelegend/scaffold-hbar-agent-bonds/actions/workflows/ci.yaml) [![Live on Vercel](https://img.shields.io/badge/live-scaffold--hbar--agent--bonds.vercel.app-000?logo=vercel)](https://scaffold-hbar-agent-bonds.vercel.app) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENCE)
+
 **Hire AI agents with skin in the game.**
 
 A [Scaffold-HBAR](https://github.com/hedera-dev/scaffold-hbar) template for paying AI agents on Hedera with **recourse the chain enforces**. Agents stake an HBAR **bond**. Clients pay them **instantly**, and every payment stays fully refundable from that bond for a dispute window. If the work is bad, the client **claws the HBAR back** from the bond.
