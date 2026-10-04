@@ -58,7 +58,7 @@ This is the economic layer that's missing between "an agent can hold a wallet" a
 
 ### Prerequisites
 
-- Node ≥ 20.18.3 and Yarn (via Corepack)
+- Node ≥ 20.19.0 (CI uses 22) and Yarn (via Corepack)
 - [Foundry](https://book.getfoundry.sh/getting-started/installation)
 - A funded Hedera testnet ECDSA account for the demo ([portal.hedera.com](https://portal.hedera.com/faucet)). About 100 testnet HBAR covers a full run.
 - Optional: an Anthropic API key for `yarn agent:chat`
