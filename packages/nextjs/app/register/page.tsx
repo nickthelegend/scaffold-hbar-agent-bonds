@@ -87,7 +87,11 @@ export default function RegisterPage() {
           </Field>
           <Field
             label="HCS receipt topic (optional)"
-            hint="Where you publish work receipts; `yarn agent:setup` creates one"
+            hint={
+              <>
+                Where you publish work receipts; <code className="font-mono">yarn agent:setup</code> creates one
+              </>
+            }
           >
             <input
               className="input input-sm input-bordered w-full font-mono"
@@ -105,7 +109,7 @@ export default function RegisterPage() {
   );
 }
 
-const Field = ({ label, hint, children }: { label: string; hint: string; children: React.ReactNode }) => (
+const Field = ({ label, hint, children }: { label: string; hint: React.ReactNode; children: React.ReactNode }) => (
   <label className="form-control">
     <span className="label-text text-xs font-semibold">{label}</span>
     {children}

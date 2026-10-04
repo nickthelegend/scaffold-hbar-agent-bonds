@@ -113,7 +113,9 @@ const PaymentItem = ({
         ) : (
           <p className="m-0 text-base-content/60">
             {!payment.receiptHash
-              ? "No receipt yet."
+              ? payment.state === "open"
+                ? "No receipt yet."
+                : "No receipt posted."
               : receiptsLoading
                 ? "Checking the receipt on HCS…"
                 : "Receipt recorded on-chain; its HCS message isn't indexed yet."}

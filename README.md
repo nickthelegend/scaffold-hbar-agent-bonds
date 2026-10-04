@@ -274,7 +274,7 @@ History comes from the mirror node (`/contracts/{address}/results/logs`, `/topic
 | Contract unit + fuzz (21) | `yarn foundry:test` | Registration rules, full coverage by free bond, instant payout, USD caps and stale-price fail-safe, release scheduled after the window and fired within its gas limit, tolerance of Hedera's block-timestamp lag, permissionless release when the Schedule Service is missing, guarantee clawbacks, client-only/once/in-window disputes, arbiter splits (including ruling for the agent), expired arbitration, receipts, withdrawal delay and cancellation, and a solvency fuzz test |
 | Live testnet fork | `yarn foundry:test:testnet --match-path "test/fork/*"` | `quoteUsd` against the real Chainlink HBAR/USD feed |
 | Agent (20) | `yarn agent:test` | Canonical receipts and dispute reasons, job hashing, HCS publish-then-record ordering, USD-capped payments, coverage refusals, clawbacks, Agent Kit policy composition, Claude tool schemas |
-| Frontend (4) | `yarn next:test` | Decoding real ABI-encoded logs (served newest-first, as the mirror node does) into payment rows, HCS receipt verification |
+| Frontend (5) | `yarn next:test` | Decoding real ABI-encoded logs (served newest-first, as the mirror node does) into payment rows, telling clawbacks from arbiter splits and rulings, HCS receipt verification, unit formatting |
 | Live end-to-end | `yarn agent:setup && yarn agent:demo --wait` | A network-executed release and a clawback on testnet |
 
 Unit tests etch a recording Schedule Service at its real system address (`0x16b`) and use a mock price feed, because neither exists in a local EVM. The fork test and the live demo run against the real ones.
