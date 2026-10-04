@@ -287,6 +287,7 @@ Use `HBAR_USD_FEED=0x... yarn foundry:deploy --network hedera_mainnet` for mainn
 
 ## Hedera specifics worth knowing
 
+- **Pin Foundry to v1.7.1 for fork tests.** Forge 1.8.x sends block tags as EIP-1898 objects, which Hedera's JSON-RPC relay (Hashio) rejects with `HTTP 400 … Expected 0x prefixed hexadecimal block number`. CI pins `foundry-toolchain` to `v1.7.1`; locally, run `foundryup --install v1.7.1` if `yarn foundry:test:testnet` fails that way.
 - **`block.timestamp` is the start of the ~2-second block a transaction lands in, not its own consensus time.** We found this live: the first deployment scheduled each release *exactly* at `disputeUntil`; the network executed it on time, but inside a block that started 1.4 s earlier, so `block.timestamp < disputeUntil` and `release` reverted with `TooEarly`. The contract now schedules releases `SCHEDULE_DELAY` (10 s) after the window, and `test_release_scheduledTimeToleratesBlockTimestampLag` pins it. Every release on the current deployment has executed successfully.
 - **Two HBAR units.** Inside contracts, `msg.value` and `address.balance` are **tinybars** (8 decimals). The JSON-RPC relay takes transaction `value` in **weibars** (18 decimals). The contract stores and emits tinybars. Use `hbarToWeibars` when sending (`packages/agent/src/units.ts`).
 - **Scheduled transactions cost HBAR**, paid by the contract that schedules them. `RELEASE_FEE` (0.05 ℏ) is kept from each payment for that, so the bonds themselves are never touched.
