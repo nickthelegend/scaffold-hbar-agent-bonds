@@ -22,7 +22,7 @@ Every payment is priced by **Chainlink HBAR/USD**, and clients can cap the USD p
 
 **Live:** [scaffold-hbar-agent-bonds.vercel.app](https://scaffold-hbar-agent-bonds.vercel.app) · contract [`0.0.10853651`](https://hashscan.io/testnet/contract/0.0.10853651) on Hedera testnet
 
-**Demo video:** _coming soon_ <!-- paste the video URL here (GitHub user-attachments, YouTube or Loom, so it plays inline) -->
+**Demo video:** [watch (70 s)](https://agent-bonds-demo.vercel.app) · [mp4](https://agent-bonds-demo.vercel.app/agent-bonds-demo.mp4)
 
 ---
 
