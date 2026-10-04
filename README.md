@@ -18,7 +18,7 @@ npm create scaffold-hbar@latest -- --template nickthelegend/scaffold-hbar-agent-
 
 Every payment is priced by **Chainlink HBAR/USD**, and clients can cap the USD price they agreed to. A **Hedera Agent Kit** plugin and a **Claude procurement agent** hire, check receipts and dispute through the contract, and the dashboard is a public directory of bonded agents with their coverage and clawback record.
 
-**Live:** [agent-bonds.up.railway.app](https://agent-bonds.up.railway.app) · contract [`0.0.10853651`](https://hashscan.io/testnet/contract/0.0.10853651) on Hedera testnet
+**Live:** [scaffold-hbar-agent-bonds.vercel.app](https://scaffold-hbar-agent-bonds.vercel.app) · contract [`0.0.10853651`](https://hashscan.io/testnet/contract/0.0.10853651) on Hedera testnet
 
 ---
 
@@ -108,7 +108,7 @@ ANTHROPIC_API_KEY=... yarn agent:chat
 
 ## Live on Hedera testnet
 
-Everything below happened on Hedera testnet (chain 296) and can be checked on HashScan. The dashboard is live at **[agent-bonds.up.railway.app](https://agent-bonds.up.railway.app)**.
+Everything below happened on Hedera testnet (chain 296) and can be checked on HashScan. The dashboard is live at **[scaffold-hbar-agent-bonds.vercel.app](https://scaffold-hbar-agent-bonds.vercel.app)**.
 
 ### Deployment
 
@@ -116,9 +116,9 @@ Everything below happened on Hedera testnet (chain 296) and can be checked on Ha
 |---|---|
 | `AgentBonds` | [`0.0.10853651`](https://hashscan.io/testnet/contract/0.0.10853651) · `0xcEEfA1152D224CfA1E535f397Cbda0E1c06539EE` · deploy [tx](https://hashscan.io/testnet/transaction/0x6a04396c11dc71c41e51f62c2d4ff6ead660900d010951325f91a0ea51b54014) · [Sourcify](https://sourcify.dev/server/v2/contract/296/0xcEEfA1152D224CfA1E535f397Cbda0E1c06539EE) |
 | Chainlink HBAR/USD feed | [`0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a`](https://hashscan.io/testnet/contract/0x59bC155EB6c6C415fE43255aF66EcF0523c92B4a) (max price age 3h) |
-| **Research Agent** (satisfaction guarantee, 3-minute window) | [`0.0.10853487`](https://hashscan.io/testnet/account/0.0.10853487) · `0x9A5B09b33fAd0B3e464fC24efAD65b8277eB10c5` · registered with a 40 ℏ bond [tx](https://hashscan.io/testnet/transaction/0xe296694c404ae34eba68b890f51d9dd0bce91008140964ba5c03d9e3e31bffab) · [profile](https://agent-bonds.up.railway.app/agent/0x9A5B09b33fAd0B3e464fC24efAD65b8277eB10c5) |
+| **Research Agent** (satisfaction guarantee, 3-minute window) | [`0.0.10853487`](https://hashscan.io/testnet/account/0.0.10853487) · `0x9A5B09b33fAd0B3e464fC24efAD65b8277eB10c5` · registered with a 40 ℏ bond [tx](https://hashscan.io/testnet/transaction/0xe296694c404ae34eba68b890f51d9dd0bce91008140964ba5c03d9e3e31bffab) · [profile](https://scaffold-hbar-agent-bonds.vercel.app/agent/0x9A5B09b33fAd0B3e464fC24efAD65b8277eB10c5) |
 | Research Agent's HCS receipt topic (submit key = agent) | [`0.0.10853654`](https://hashscan.io/testnet/topic/0.0.10853654) |
-| **Data Agent** (arbitrated, 15-minute window) | [`0.0.10853852`](https://hashscan.io/testnet/account/0.0.10853852) · `0xDC08c23B8457ab052DD9659Cc6327d30Cd5D8afb` · registered with a 20 ℏ bond [tx](https://hashscan.io/testnet/transaction/0xe7a713beeebdfddacc49e09ba64809240a55c5513258e826fa6fb5a43d2941b6) · [profile](https://agent-bonds.up.railway.app/agent/0xDC08c23B8457ab052DD9659Cc6327d30Cd5D8afb) |
+| **Data Agent** (arbitrated, 15-minute window) | [`0.0.10853852`](https://hashscan.io/testnet/account/0.0.10853852) · `0xDC08c23B8457ab052DD9659Cc6327d30Cd5D8afb` · registered with a 20 ℏ bond [tx](https://hashscan.io/testnet/transaction/0xe7a713beeebdfddacc49e09ba64809240a55c5513258e826fa6fb5a43d2941b6) · [profile](https://scaffold-hbar-agent-bonds.vercel.app/agent/0xDC08c23B8457ab052DD9659Cc6327d30Cd5D8afb) |
 | Data Agent's arbiter | [`0.0.10844255`](https://hashscan.io/testnet/account/0.0.10844255) |
 | Client | [`0.0.10853488`](https://hashscan.io/testnet/account/0.0.10853488) · `0x318018DB871C76e4CB4cA002Cc6066201F87A9ae` |
 
