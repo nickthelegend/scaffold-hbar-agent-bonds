@@ -1,0 +1,41 @@
+schemaVersion: 2
+
+name: agent-bonds
+description: >
+  AgentBonds: slashable HBAR bonds for AI agents on Hedera. Agents stake a bond, clients pay them instantly, and a
+  dispute inside the window claws the HBAR back from the bond (instantly, or as an arbiter decides). Undisputed
+  payments are released by a call the contract scheduled for itself on the Hedera Schedule Service, agents publish
+  work receipts to HCS, Chainlink prices every payment in USD, and a Hedera Agent Kit plugin plus a Claude
+  procurement agent hire through it.
+
+agent: claude
+
+baseline:
+  commands:
+    - name: install
+      command: yarn install
+    - name: contracts
+      command: yarn foundry:test
+    - name: build
+      command: yarn next:build
+
+validators:
+  playwright: .harness/validators/playwright-smoke.yaml
+
+contract: .harness/acceptance-contract.json
+validator:
+  enabled: true
+
+# Tier 3.5: an ephemeral funded testnet signer runs the real on-chain flow (register an agent, hire it, dispute)
+# and the harness verifies the effects on the mirror node.
+chainValidation:
+  enabled: true
+  network: testnet
+  operator:
+    accountIdEnv: HEDERA_OPERATOR_ID
+    privateKeyEnv: HEDERA_OPERATOR_KEY
+  fundingHbar: 30
+  sweepBack: true
+  expose:
+    browserLocalStorageKey: burnerWallet.pk
+    envVars: [OWNER_PRIVATE_KEY]

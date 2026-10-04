@@ -1,0 +1,55 @@
+{
+  "name": "agent-bonds-acceptance",
+  "assertions": [
+    {
+      "id": "C1",
+      "journey": "landing",
+      "route": "/",
+      "severity": "critical",
+      "statement": "The landing page explains how a bonded payment works and shows a live Chainlink HBAR/USD price.",
+      "howToVerify": "Open /. Confirm the four steps under 'How a bonded payment works' and a price like '1 ℏ = $0.0…' near the top.",
+      "walletRequired": false,
+      "verifiableWithoutCredentials": true
+    },
+    {
+      "id": "C2",
+      "journey": "directory",
+      "route": "/",
+      "severity": "critical",
+      "statement": "The 'Bonded agents' directory lists registered agents with their available coverage and record.",
+      "howToVerify": "Scroll to 'Bonded agents'. At least one tile shows a name, 'Coverage available now' in ℏ, the dispute window and 'paid · clawed back' counts. Clicking it opens /agent/<address>.",
+      "walletRequired": false,
+      "verifiableWithoutCredentials": true
+    },
+    {
+      "id": "C3",
+      "journey": "agent-profile",
+      "route": "/agent/[address]",
+      "severity": "major",
+      "statement": "An agent profile shows its bond, locked coverage and payment history with HCS receipt verification.",
+      "howToVerify": "Open /agent/0x9A5B09b33fAd0B3e464fC24efAD65b8277eB10c5 on testnet. The Payments list shows released and refunded payments; payments with receipts show 'verified on HCS'.",
+      "walletRequired": false,
+      "verifiableWithoutCredentials": true
+    },
+    {
+      "id": "C4",
+      "journey": "register",
+      "route": "/register",
+      "severity": "critical",
+      "statement": "A connected wallet can register as a bonded agent and lands on its profile.",
+      "howToVerify": "Connect the burner wallet, open /register, enter a name, bond 5, window 5 minutes, submit. The browser navigates to /agent/<address> with a 5 ℏ bond and 'you operate this agent'.",
+      "walletRequired": true,
+      "executableWithTestSigner": true
+    },
+    {
+      "id": "C5",
+      "journey": "hire-and-claw-back",
+      "route": "/agent/[address]",
+      "severity": "critical",
+      "statement": "A client can hire a bonded agent and claw the payment back inside the dispute window.",
+      "howToVerify": "With a different wallet, open an agent with free bond, describe a job, pay 1 ℏ, then click 'Claw back' on the new payment. Its badge becomes 'Clawed back' and the agent's bond drops by 1 ℏ.",
+      "walletRequired": true,
+      "executableWithTestSigner": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+name: agent-bonds-smoke
+server:
+  command: yarn next:start
+  url: http://localhost:3000
+  timeoutMs: 180000
+defaults:
+  timeoutMs: 45000
+  failOnConsoleError: false
+routes:
+  - name: landing
+    path: /
+  - name: register
+    path: /register
+  - name: agent-profile
+    path: /agent/0x9A5B09b33fAd0B3e464fC24efAD65b8277eB10c5
+  - name: health
+    path: /api/health
+forbidden:
+  visibleText:
+    - "Application error"
+    - "Unhandled Runtime Error"
+    - "is not deployed on this network"
+    - "isn't deployed on this network"

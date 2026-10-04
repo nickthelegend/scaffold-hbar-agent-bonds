@@ -1,0 +1,55 @@
+{
+  "name": "agent-bonds-static",
+  "description": "Files and docs that must exist in a scaffolded Agent Bonds project (template.json is consumed and removed by create-scaffold-hbar, so it is not checked here).",
+  "jsonAssertions": [
+    {
+      "file": "package.json",
+      "path": "packageManager",
+      "equals": "yarn@3.2.3"
+    }
+  ],
+  "fileAssertions": {
+    "required": [
+      "README.md",
+      "AGENTS.md",
+      "LICENCE",
+      "packages/foundry/contracts/AgentBonds.sol",
+      "packages/foundry/test/AgentBonds.t.sol",
+      "packages/foundry/test/fork/AgentBondsFork.t.sol",
+      "packages/agent/src/plugin/index.ts",
+      "packages/agent/src/claude-toolkit.ts",
+      "packages/agent/.env.example",
+      "packages/nextjs/app/agent/[address]/page.tsx",
+      "packages/nextjs/app/register/page.tsx",
+      "packages/nextjs/app/api/health/route.ts",
+      ".harness/spec.yaml",
+      ".harness/prd.md"
+    ],
+    "forbidden": [
+      ".env",
+      "packages/nextjs/.env",
+      "packages/foundry/.env",
+      "packages/agent/.env",
+      "packages/hardhat"
+    ]
+  },
+  "textAssertions": [
+    {
+      "file": "README.md",
+      "contains": [
+        "npm create scaffold-hbar@latest",
+        "yarn agent:setup",
+        "yarn agent:demo",
+        "hashscan.io/testnet"
+      ]
+    },
+    {
+      "file": "AGENTS.md",
+      "contains": [
+        "AgentBonds",
+        "tinybars",
+        "yarn foundry:test"
+      ]
+    }
+  ]
+}

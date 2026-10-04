@@ -1,0 +1,78 @@
+{
+  "name": "agent-bonds",
+  "description": "Slashable HBAR bonds for AI agents: clients pay agents instantly and claw HBAR back from the agent's bond if the work is bad. Hedera Schedule Service releases undisputed payments, HCS carries work receipts, Chainlink prices every payment, and a Hedera Agent Kit plugin plus a Claude agent hire through it.",
+  "version": "0.1.0",
+  "create-scaffold-hbar": {
+    "capabilities": {
+      "frontend": [
+        "nextjs-app"
+      ],
+      "solidityFramework": [
+        "foundry"
+      ],
+      "packageManager": [
+        "yarn"
+      ]
+    },
+    "defaults": {
+      "frontend": "nextjs-app",
+      "solidityFramework": "foundry",
+      "packageManager": "yarn"
+    },
+    "requirements": {
+      "node": ">=20.18.3"
+    },
+    "envVars": [
+      {
+        "key": "OWNER_PRIVATE_KEY",
+        "description": "Only for `yarn agent:setup`: ECDSA key of a funded testnet account that funds the demo agent and client. Pass it inline; never commit it."
+      },
+      {
+        "key": "ANTHROPIC_API_KEY",
+        "description": "Only for `yarn agent:chat` (or run `ant auth login`). Agent and client keys live in packages/agent/.env, written by `yarn agent:setup`."
+      }
+    ],
+    "outro": {
+      "sections": [
+        {
+          "steps": [
+            {
+              "text": "AgentBonds lets clients hire AI agents that stake an HBAR bond, and claw HBAR back from it when the work is bad. The dashboard works against the live testnet contract out of the box."
+            }
+          ]
+        },
+        {
+          "title": "Try it",
+          "steps": [
+            {
+              "label": "Run the contract tests (unit + fuzz + live Chainlink fork)",
+              "command": "{run:foundry:test} && {run:foundry:test:testnet} --match-path \"test/fork/*\""
+            },
+            {
+              "label": "Start the agent directory",
+              "command": "{run:next:dev}"
+            },
+            {
+              "label": "Fund a testnet account at the faucet, then bootstrap a bonded agent, a client and an HCS receipt topic",
+              "url": "https://portal.hedera.com/faucet"
+            },
+            {
+              "command": "OWNER_PRIVATE_KEY=0x... {run:agent:setup}"
+            },
+            {
+              "label": "Watch an honest job get released by the network and a bad job get clawed back, with no LLM needed",
+              "command": "{run:agent:demo} --wait"
+            },
+            {
+              "label": "Let a Claude procurement agent hire, check receipts and dispute",
+              "command": "{run:agent:chat}"
+            },
+            {
+              "text": "Deploy your own AgentBonds with {run:foundry:deploy} --network hedera_testnet. README.md walks through the design."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
