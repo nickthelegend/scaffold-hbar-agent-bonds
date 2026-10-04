@@ -135,7 +135,7 @@ const PaymentItem = ({
             target="_blank"
             rel="noreferrer"
           >
-            Hedera schedule {shortHex(payment.schedule)}
+            Hedera schedule {entityIdFromAddress(payment.schedule)}
           </a>
         )}
         {payment.state === "open" && windowLeft > 0 && (

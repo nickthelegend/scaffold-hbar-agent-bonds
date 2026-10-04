@@ -323,6 +323,11 @@ yarn harness:doctor     # checks the recipe and the host
 yarn harness:validate   # runs Tiers 0–2 against this project
 ```
 
+On a fresh `npm create scaffold-hbar` of this template (4 Oct 2026), `yarn harness:validate` reports **`passed=true`, 0 findings**:
+- static checks pass;
+- install, lint, the Foundry, agent and frontend tests, and the production build all pass;
+- the Playwright gate renders all four routes (`/`, `/register`, a live agent profile, `/api/health`).
+
 `hedera-harness` and `playwright` are devDependencies. The harness resolves Playwright from its own install location, so running it through `npx` can't see the project's copy, and Tier 2 uses the system Chrome. Tier 3 needs an agent CLI, and Tier 3.5 needs `HEDERA_OPERATOR_ID` and `HEDERA_OPERATOR_KEY` for its ephemeral signer.
 
 ## Project layout

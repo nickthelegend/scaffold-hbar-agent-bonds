@@ -31,7 +31,12 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
   const { address: connected } = useAccount();
   const { targetNetwork } = useTargetNetwork();
   const explorer = targetNetwork.blockExplorers?.default.url;
-  const { data: info, isLoading } = useScaffoldReadContract({
+  const {
+    data: info,
+    isLoading,
+    error: readError,
+    refetch,
+  } = useScaffoldReadContract({
     contractName: "AgentBonds",
     functionName: "getAgent",
     args: [agent],
@@ -50,13 +55,24 @@ const AgentProfile = ({ agent }: { agent: Address }) => {
   const { payments, isLoading: paymentsLoading, error } = usePayments(agent);
   const { receipts, topicId } = useReceipts(info?.receiptTopic);
 
-  if (isLoading)
+  if (isLoading || (!info && !readError))
     return (
       <div className="max-w-5xl mx-auto w-full p-8">
         <div className="h-48 rounded-box bg-base-200 animate-pulse" />
       </div>
     );
-  if (!info?.registered) {
+  // A failed RPC read is not the same as "not registered": say so instead of sending people to /register.
+  if (!info) {
+    return (
+      <div className="max-w-3xl mx-auto p-10 text-center space-y-4">
+        <p className="text-lg m-0">Couldn&apos;t reach the {targetNetwork.name} RPC to load this agent.</p>
+        <button className="btn btn-primary btn-sm" onClick={() => refetch()}>
+          Try again
+        </button>
+      </div>
+    );
+  }
+  if (!info.registered) {
     return (
       <div className="max-w-3xl mx-auto p-10 text-center space-y-4">
         <p className="text-lg m-0">
